@@ -1,0 +1,643 @@
+====================================================================================================
+SENTINEL AI — CCTV VIDEO ANALYTICS & DIGITAL FORENSICS PLATFORM
+COMPLETE PROJECT STUDY GUIDE: FROM START TO END
+====================================================================================================
+Project Name      : SENTINEL AI
+Classification    : AI-Powered Multi-Camera CCTV Analytics & Forensics Vault
+Author / Platform : Antigravity Advanced Agentic Engineering
+Operating System  : Windows
+Environment       : Python 3.13 / Node.js v22 / React 19 / FastAPI / SQLite / PyTorch / YOLO
+Default Admin     : admin
+Default Password  : S3nt1n3l#Analytics2026!Key
+Backend API URL   : http://127.0.0.1:8000 (API Docs: http://127.0.0.1:8000/docs)
+Frontend UI URL   : http://localhost:3000/
+====================================================================================================
+
+
+====================================================================================================
+TABLE OF CONTENTS
+====================================================================================================
+ 1. PROJECT OVERVIEW & CORE OBJECTIVES
+ 2. HIGH-LEVEL SYSTEM ARCHITECTURE
+ 3. TECHNOLOGY STACK & DEPENDENCIES
+ 4. DATABASE ARCHITECTURE & SCHEMA SPECIFICATION
+ 5. ARTIFICIAL INTELLIGENCE & COMPUTER VISION PIPELINE
+    5.1. Object Detection Engine (YOLO)
+    5.2. Multi-Object Tracking (ByteTrack + Fallback MOT)
+    5.3. Facial Detection & Harvesting (Haar Cascade)
+    5.4. Deep Person Re-Identification (Re-ID: MobileNetV3 + Spatial Color Descriptors)
+ 6. SPATIAL TOPOLOGY & CROSS-CAMERA TRAJECTORY RECONSTRUCTION
+ 7. DIGITAL FORENSICS, EVIDENCE VAULT & SECURITY
+ 8. FRONTEND ARCHITECTURE & USER INTERFACE MODULES
+ 9. COMPLETE BACKEND REST API DIRECTORY
+10. END-TO-END WORKFLOWS & INVESTIGATIVE SCENARIOS
+11. DEVELOPMENT HISTORY, BUG FIXES & COMPATIBILITY RESOLUTIONS
+12. HOW TO RUN, VALIDATE & MAINTAIN THE APPLICATION
+====================================================================================================
+
+
+====================================================================================================
+1. PROJECT OVERVIEW & CORE OBJECTIVES
+====================================================================================================
+SENTINEL AI is an enterprise-grade CCTV video surveillance analysis, automated entity tracking,
+and digital forensics platform. Modern CCTV environments suffer from camera overload, fragmented
+footage, lack of real-time multi-camera tracking, and cumbersome manual review processes.
+
+SENTINEL AI addresses these core operational challenges:
+
+1. AUTOMATED INGESTION & OBJECT DETECTION:
+   Processes raw CCTV video footage (MP4, AVI, MOV, MKV) across camera nodes, detecting humans,
+   vehicles (cars, motorcycles, buses, trucks), backpacks, and faces with high accuracy.
+
+2. MULTI-OBJECT TRACKING (MOT):
+   Maintains persistent tracking identities for entities within a video stream across frames,
+   eliminating redundant counts and rendering visual motion trails.
+
+3. CROSS-CAMERA PERSON RE-IDENTIFICATION (Re-ID):
+   Links sightings of the same person across disjoint, non-overlapping camera feeds using deep CNN
+   appearance embeddings and spatial-color histograms.
+
+4. SPATIAL TOPOLOGY & TRAJECTORY MAPPING:
+   Maps camera positions onto building blueprints/floorplans. Calculates dwell times, transit
+   velocities between zones, and reconstructs a subject's physical path through a facility.
+
+5. LEGAL CHAIN-OF-CUSTODY EVIDENCE VAULT:
+   Computes SHA-256 cryptographic hashes for all uploaded footage and video clips to ensure forensic
+   integrity and detect tampering or unauthorized modifications.
+
+6. CASE MANAGEMENT & EXECUTIVE REPORTING:
+   Provides case dossiers, automated conversion of trajectory waypoints into structured investigation
+   timelines, and one-click generation of printable executive forensic reports.
+
+
+====================================================================================================
+2. HIGH-LEVEL SYSTEM ARCHITECTURE
+====================================================================================================
+
+               +-------------------------------------------------------------+
+               |                  CLIENT BROWSER (UI / UX)                   |
+               |         React 19 + Vite + TailwindCSS + Lucide Icons        |
+               +------------------------------+------------------------------+
+                                              |
+                             REST APIs (HTTP / JSON / Stream)
+                             Vite Proxy: Port 3000 -> Port 8000
+                                              |
+               +------------------------------v------------------------------+
+               |                 FASTAPI BACKEND APPLICATION                 |
+               |              Uvicorn ASGI Server (Port 8000)                |
+               +------------------------------+------------------------------+
+                                              |
+        +----------------------+--------------+--------------+----------------------+
+        |                      |                             |                      |
++-------v-------+      +-------v-------+             +-------v-------+      +-------v-------+
+|  AUTH & RBAC  |      |   AI ENGINE   |             | RE-ID ENGINE  |      | FORENSICS &   |
+| Direct Bcrypt |      | YOLO + MOT    |             | MobileNetV3 + |      | EVIDENCE      |
+| JWT (HS256)   |      | Haar Cascade  |             | Color Hist    |      | SHA-256 Hash  |
++-------+-------+      +-------+-------+             +-------+-------+      +-------+-------+
+        |                      |                             |                      |
+        +----------------------+--------------+--------------+----------------------+
+                                              |
+                               +--------------v--------------+
+                               |     SQLAlchemy 2.0 ORM      |
+                               +--------------+--------------+
+                                              |
+                               +--------------v--------------+
+                               |    SQLite Database Engine   |
+                               |        (sentinel.db)        |
+                               +-----------------------------+
+
+
+====================================================================================================
+3. TECHNOLOGY STACK & DEPENDENCIES
+====================================================================================================
+
+BACKEND:
+- Language: Python 3.13 / 3.14 compatible
+- Framework: FastAPI >= 0.100.0 (Asynchronous Python Web Framework)
+- ASGI Server: Uvicorn[standard] >= 0.22.0
+- ORM: SQLAlchemy >= 2.0.0 (Supports SQLite with auto-fallback from PostgreSQL)
+- Serialization / Validation: Pydantic v2 & Pydantic-Settings
+- Security & Tokens: Direct bcrypt (4.0.1) & Python-Jose (JWT HS256)
+- File Uploads: Python-Multipart >= 0.0.6
+
+COMPUTER VISION & DEEP LEARNING:
+- Computer Vision: OpenCV (opencv-python-headless >= 4.8.0)
+- Deep Learning Framework: PyTorch >= 2.0.0 & TorchVision >= 0.15.0
+- Object Detection: Ultralytics YOLO (supports YOLOv8 / YOLO11)
+- Tracking Algorithm: ByteTrack persistent tracker with fallback Centroid/IoU MOT tracker
+- Feature Extraction: MobileNetV3 Small (TorchVision) combined with 3-part HSV/Lab color descriptors
+
+FRONTEND:
+- Framework: React 19 (Modern functional React with hooks)
+- Build Tool: Vite v8 (Fast HMR development and optimized production bundling)
+- Styling: TailwindCSS (Modern utility styling with sleek dark cybersecurity glassmorphism)
+- Icons: Lucide React (Comprehensive icon set for surveillance and investigations)
+- HTTP Client: Axios (Configured with request token interceptors and 401 redirection)
+- Router: React Router v7 (Client-side routing with protected route wrapper)
+- Interactive Visuals: Custom Silk WebGL background canvas and SVG interactive floorplans
+
+
+====================================================================================================
+4. DATABASE ARCHITECTURE & SCHEMA SPECIFICATION
+====================================================================================================
+The SQLite database (`sentinel.db`) is structured with 12 interconnected relational tables:
+
+1. `users`:
+   - id (String UUID, Primary Key)
+   - username (String, Unique, Index)
+   - email (String, Unique, Index)
+   - hashed_password (String)
+   - role (String: 'admin', 'investigator', 'viewer')
+   - is_active (Boolean, Default True)
+   - created_at (DateTime)
+
+2. `buildings`:
+   - id (String UUID, Primary Key)
+   - code (String, Unique, e.g. "BLDG-A")
+   - name (String, e.g. "Main Headquarters")
+   - description (Text)
+   - address (String)
+   - floors_count (Integer)
+   - created_at, updated_at (DateTime)
+
+3. `floors`:
+   - id (String UUID, Primary Key)
+   - building_id (Foreign Key -> buildings.id)
+   - floor_number (Integer)
+   - floor_name (String, e.g. "Floor 1 - Main Reception")
+   - blueprint_path (String, Path to uploaded blueprint image)
+   - width_meters, height_meters (Float)
+
+4. `cameras`:
+   - id (String UUID, Primary Key)
+   - camera_code (String, Unique, e.g. "CAM 01")
+   - name (String, e.g. "Main Entrance South")
+   - location_description (String)
+   - rtsp_url (String, Optional RTSP live stream URL)
+   - status (String: 'ONLINE', 'OFFLINE', 'MAINTENANCE')
+   - building_id (Foreign Key -> buildings.id)
+   - floor_id (Foreign Key -> floors.id)
+   - position_x (Float, 0 to 100 percentage of floorplan width)
+   - position_y (Float, 0 to 100 percentage of floorplan height)
+   - direction_angle (Float, 0 to 360 camera viewing angle)
+   - area_zone (String, e.g. "Main Entrance", "Lobby", "Parking")
+   - display_order (Integer, order in CCTV grid)
+
+5. `camera_connections`:
+   - id (String UUID, Primary Key)
+   - building_id (Foreign Key -> buildings.id)
+   - source_camera_id (Foreign Key -> cameras.id)
+   - target_camera_id (Foreign Key -> cameras.id)
+   - transit_seconds_est (Float, estimated transit time between cameras)
+   - connection_type (String: 'CORRIDOR', 'STAIRWAY', 'ELEVATOR', 'OUTDOOR_WALKWAY')
+
+6. `videos`:
+   - id (String UUID, Primary Key)
+   - camera_id (Foreign Key -> cameras.id)
+   - original_filename (String)
+   - stored_filename (String)
+   - file_path (String, Absolute path to raw video)
+   - processed_file_path (String, Path to AI-annotated video)
+   - file_size_bytes (Integer)
+   - duration_seconds (Float)
+   - fps (Float)
+   - width, height (Integer)
+   - sha256_hash (String, 64-char hex)
+   - status (String: 'PENDING', 'PROCESSING', 'COMPLETED', 'FAILED')
+   - real_world_start_time, real_world_end_time (DateTime)
+   - timezone (String, e.g. "Asia/Kolkata")
+
+7. `detections`:
+   - id (String UUID, Primary Key)
+   - video_id (Foreign Key -> videos.id)
+   - camera_id (Foreign Key -> cameras.id)
+   - timestamp_offset (Float, seconds from video start)
+   - frame_number (Integer)
+   - class_name (String: person, car, motorcycle, bus, truck, backpack, etc.)
+   - confidence (Float, 0.00 to 1.00)
+   - bbox_x, bbox_y, bbox_w, bbox_h (Float, Normalized coordinates)
+   - face_crop_path (String, Optional path to extracted face thumbnail)
+
+8. `tracking_events` (MOT Persistent Tracks):
+   - id (String UUID, Primary Key)
+   - video_id (Foreign Key -> videos.id)
+   - camera_id (Foreign Key -> cameras.id)
+   - track_id (Integer, Track ID within the video, e.g. 1, 2, 3...)
+   - class_name (String)
+   - start_frame, end_frame (Integer)
+   - start_time_offset, end_time_offset (Float)
+   - total_detections (Integer)
+   - avg_confidence (Float)
+   - bbox_trajectory (JSON Text: Array of bounding boxes and time offsets)
+   - thumbnail_path (String, Path to best entity crop)
+   - reid_embedding (JSON Text: 512-dim float vector)
+   - real_world_start_time, real_world_end_time (DateTime)
+
+9. `subjects` (Suspect / Person of Interest Vault):
+   - id (String UUID, Primary Key)
+   - subject_code (String, Unique, e.g. "SUBJ-001")
+   - first_name, last_name (String)
+   - aliases (String)
+   - status (String: 'WANTED', 'PERSON_OF_INTEREST', 'CLEARED', 'MONITORED')
+   - thumbnail_path (String)
+   - reid_embedding (JSON Text: 512-dim appearance feature vector)
+   - face_encoding (JSON Text)
+
+10. `subject_camera_matches`:
+    - id (String UUID, Primary Key)
+    - source_subject_id (Foreign Key -> subjects.id)
+    - target_camera_id (Foreign Key -> cameras.id)
+    - target_track_id (Foreign Key -> tracking_events.id)
+    - similarity_score (Float, Cosine similarity score)
+    - matched_at (DateTime)
+
+11. `evidence`:
+    - id (String UUID, Primary Key)
+    - evidence_code (String, Unique, e.g. "EV-2026-001")
+    - video_id (Foreign Key -> videos.id)
+    - camera_id (Foreign Key -> cameras.id)
+    - file_path (String)
+    - file_hash (String, SHA-256 checksum)
+    - hash_algorithm (String, "SHA-256")
+    - file_size (Integer)
+    - chain_of_custody_log (JSON Text: Audit logs of access and verification)
+    - is_tampered (Boolean, True if current file hash mismatches original hash)
+    - verified_at (DateTime)
+
+12. `cases` & `investigation_events`:
+    - `cases`: id, case_number, title, description, status, priority, lead_investigator_id
+    - `investigation_events`: id, case_id, camera_id, subject_id, event_type, event_timestamp, description, clip_path
+    - `case_evidence`: association table linking cases to evidence records
+
+13. `reports`:
+    - id, case_id, report_title, generated_by_id, summary_content, pdf_path, generated_at
+
+14. `audit_logs`:
+    - id, action, user_id, entity_type, entity_id, details, timestamp
+
+
+====================================================================================================
+5. ARTIFICIAL INTELLIGENCE & COMPUTER VISION PIPELINE
+====================================================================================================
+
+5.1. OBJECT DETECTION ENGINE (Ultralytics YOLO)
+- Architecture: YOLO (YOLOv8 / YOLO11 nano weights: `yolo11n.pt`)
+- Execution: Frame sampling at configurable rates (default 5 FPS) to maximize processing throughput.
+- Target Classes:
+  * Person (Pedestrians, suspects, employees)
+  * Vehicles: Car, Motorcycle, Bus, Truck
+  * Accessories: Backpack, Handbag, Suitcase
+- Output: Normalized bounding box coordinates [x, y, w, h], class labels, and confidence probabilities.
+
+5.2. MULTI-OBJECT TRACKING (MOT)
+- Core Algorithm: ByteTrack integrated with YOLO `model.track(persist=True, tracker="bytetrack.yaml")`.
+- Resilient Fallback: `FallbackMOTTracker` implemented in pure NumPy/OpenCV:
+  * Calculates Intersection-over-Union (IoU) between active tracks and new detections.
+  * Tracks centroid motion history across up to 40 previous frames.
+  * Handles temporary occlusions (up to `max_lost_frames` grace period).
+- Visual Annotation:
+  * Persistent ID badges: `[ID #12 | PERSON 88%]`.
+  * Dynamic motion trail rendering: trailing bezier-style velocity lines fading behind moving targets.
+  * Distinct color hashing: consistent colors assigned to each track ID across frames.
+- Entity Thumbnail Cropping:
+  * Automatically evaluates each detected entity per frame.
+  * Saves the highest-resolution, highest-confidence crop as the master track thumbnail.
+
+5.3. FACIAL DETECTION & HARVESTING
+- Algorithm: OpenCV Haar Cascade Classifier (`haarcascade_frontalface_default.xml`).
+- Optimization:
+  * Throttled execution: activated exclusively on upper 45% of detected "person" crops.
+  * Limits face harvesting to 2 high-quality face crops per unique track to prevent duplicate clutter.
+  * Stores harvested faces in `storage/face_crops/` with frame and track references.
+
+5.4. DEEP PERSON RE-IDENTIFICATION (Re-ID)
+To link an individual appearing on Camera 01 (Entrance) with Camera 04 (Vault Exit), SENTINEL AI
+extracts a rich 512-dimensional visual appearance signature:
+1. Deep CNN Feature Pass (256 Dimensions):
+   - Backbone: PyTorch MobileNetV3 Small (pretrained, classification head removed).
+   - Input: Entity crop resized to standard Re-ID aspect ratio 224x112 (2:1 height-to-width).
+   - Forward pass extracts high-level semantic features (body shape, clothing texture).
+2. Multi-Part Spatial Color Descriptors (256 Dimensions):
+   - Vertical partitioning:
+     * Top Part (Head / Hat / Collar)
+     * Middle Part (Torso / Shirt / Jacket)
+     * Bottom Part (Trousers / Skirt / Shoes)
+   - Feature Extraction: 16-bin Hue, 8-bin Saturation, 8-bin Value histograms computed for each part.
+   - Converts to CIE Lab color space to ensure robustness against lighting and shadow variations.
+3. Feature Fusion & Normalization:
+   - Concatenates deep features (256-d) + spatial color histograms (256-d) = 512 dimensions.
+   - Applies L2 vector normalization.
+4. Metric Matching:
+   - Evaluates similarity using Cosine Similarity:
+     Similarity = (Vector_A . Vector_B) / (||Vector_A|| * ||Vector_B||)
+   - Matches above threshold (e.g. >= 0.50 or >= 0.70) are flagged as identical subjects.
+
+
+====================================================================================================
+6. SPATIAL TOPOLOGY & CROSS-CAMERA TRAJECTORY RECONSTRUCTION
+====================================================================================================
+
+1. Coordinate Space:
+   - Camera nodes are assigned normalized coordinates (X: 0–100%, Y: 0–100%) on building floorplans.
+   - Direction angles (0–360 degrees) depict camera field-of-view cones.
+
+2. Camera Network Topology (`camera_connections`):
+   - Defines physical corridors, stairwells, and walkways connecting camera pairs.
+   - Stores estimated transit times (e.g. 45 seconds between Gate South and Main Lobby).
+
+3. Trajectory Assembly (`TrajectoryService`):
+   - When a track or subject is queried, the system retrieves all cross-camera Re-ID matches.
+   - Orders sightings chronologically by real-world timestamps or video offsets.
+   - Filters out physically impossible leaps (e.g. traversing 500 meters in 2 seconds).
+   - Computes:
+     * Dwell Time: Duration the entity was visible under each camera's field of view.
+     * Transit Time: Travel duration between consecutive camera zones.
+     * Estimated Velocity: Physical movement speed between zones.
+   - Generates an automated forensic narrative:
+     "Subject entered via Main Entrance South (CAM 01) at 14:02:10. Dwelt 35s.
+      Transited corridor in 42s to Lobby Central Corridor (CAM 02).
+      Exited toward Vault Perimeter Exit (CAM 04) at 14:05:15."
+
+4. Case Dossier Sync:
+   - With one click (`POST /api/v1/trajectories/sync-case/{case_id}`), all trajectory waypoints
+     are automatically converted into structured `InvestigationEvent` entries on an active case.
+
+
+====================================================================================================
+7. DIGITAL FORENSICS, EVIDENCE VAULT & SECURITY
+====================================================================================================
+
+1. Cryptographic Chain-of-Custody:
+   - Upon upload, raw CCTV video files are digested using SHA-256 block-wise hashing:
+     `hashlib.sha256().update(chunk)`
+   - Hash is stored permanently in the `evidence` and `videos` database records.
+
+2. Tamper Detection:
+   - Investigators can trigger live verification (`POST /api/v1/evidence/{id}/verify`).
+   - The system re-reads the physical video file from disk, recalculates the SHA-256 hash in real time,
+     and compares it to the registered fingerprint.
+   - If a single byte has been modified, corrupted, or replaced, the system marks `is_tampered = True`
+     and sounds a high-priority security alarm in the UI.
+
+3. Chain-of-Custody Audit Log:
+   - Every verification, viewing, case linkage, or export event is timestamped and recorded
+     in `chain_of_custody_log` JSON with the user ID, client IP, action, and resulting checksum.
+
+4. Password Security & Authentication:
+   - High-entropy admin credentials: `S3nt1n3l#Analytics2026!Key`.
+   - Direct bcrypt password hashing with 12 salt rounds (`bcrypt.hashpw` / `bcrypt.checkpw`).
+   - Stateless JWT tokens (HS256) with configurable expiration (1440 minutes / 24 hours).
+   - Role-Based Access Control (RBAC): ADMIN, INVESTIGATOR, VIEWER.
+
+
+====================================================================================================
+8. FRONTEND ARCHITECTURE & USER INTERFACE MODULES
+====================================================================================================
+
+The frontend is a single-page application built with React 19, TailwindCSS, and Vite.
+It features a dark cyberpunk / cybersecurity aesthetic with deep obsidian surfaces, cyan neon
+borders, glassmorphism cards, and interactive canvas visualizers.
+
+Key Pages & Capabilities:
+
+1. `Login.jsx` (`/login`):
+   - High-security authentication portal with automatic credential demo-fill.
+   - Token storage in `localStorage` with automatic authorization header injection.
+
+2. `Dashboard.jsx` (`/`):
+   - Surveillance overview hub: active camera count, 24h detection counters, open investigation dossiers.
+   - System resource status, real-time alert log ticker, and quick navigation links.
+
+3. `CCTVMonitoring.jsx` (`/cctv`):
+   - Live CCTV Grid Matrix: dynamic multi-camera video feed player (1x1, 2x2, 3x3 layout).
+   - Building & Floor Zone Tabs: instantly filter camera feeds by facility or floor level.
+   - Interactive 2D Floorplan Canvas: visual overhead map plotting camera positions `(X, Y)` with
+     view direction cones and inter-camera connection vectors.
+   - Camera Arrangement Modal: interactive sliders to re-position cameras, adjust orientation angles,
+     and re-order display priority.
+   - Video Ingestion & AI Trigger Modal: upload video files, specify camera node, probe metadata
+     (resolution, fps, duration, timecode), and run automated YOLO + MOT analysis.
+   - PTZ Digital Controls: live zoom, pan, and synchronized playback scrubber.
+
+4. `AISearch.jsx` (`/search`):
+   - Forensic Attribute Search: filter detections by class (Person, Vehicle, Backpack), confidence,
+     and time window.
+   - Visual Trajectory Visualizer: animated replay of subject movements across building floorplans.
+   - Multi-Camera Re-ID Sighting Inspector: inspect cross-camera sightings with similarity percentages.
+   - One-Click Case Sync: push verified sightings directly into an investigation dossier.
+
+5. `Subjects.jsx` (`/subjects`):
+   - Suspect & Person of Interest (POI) Registry.
+   - Upload suspect portrait photos and compute 512-d Re-ID embeddings.
+   - 1:N Facial & Appearance Search: scans all CCTV footage across the entire camera network to
+     find matching appearances.
+
+6. `Investigations.jsx` (`/investigations`):
+   - Active Case Dossier Management (Title, Case #, Priority: LOW/MED/HIGH/CRITICAL, Status: OPEN/CLOSED).
+   - Interactive Case Timeline: chronological sequence of events, video clips, and suspects.
+   - Evidence Linking: associate video evidence securely to case records.
+
+7. `EvidenceVault.jsx` (`/evidence`):
+   - Digital Evidence Repository with SHA-256 integrity badges.
+   - Live "Verify Integrity" button that validates physical file checksums on demand.
+   - Full chain-of-custody audit log inspector.
+
+8. `Reports.jsx` (`/reports`):
+   - Executive Investigation Report Generator.
+   - Auto-compiles case summaries, suspect profiles, chronological timeline, and evidence logs.
+   - Formatted for clean printing or PDF export for judicial or executive review.
+
+9. `SystemSettings.jsx` (`/settings`):
+   - Engine configuration: confidence thresholds, MOT tracking parameters, frame sampling rates.
+   - Database connection status and storage path diagnostics.
+
+
+====================================================================================================
+9. COMPLETE BACKEND REST API DIRECTORY
+====================================================================================================
+
+AUTH:
+- POST   /api/v1/auth/token                    -> Authenticate user & issue JWT Bearer token
+- GET    /api/v1/auth/me                       -> Retrieve current user profile and role
+
+BUILDINGS & FLOORS:
+- GET    /api/v1/buildings                     -> List all registered facilities
+- POST   /api/v1/buildings                     -> Register new facility / building
+- GET    /api/v1/buildings/{id}                -> Get building details
+- PATCH  /api/v1/buildings/{id}                -> Update building details
+- DELETE /api/v1/buildings/{id}                -> Delete building
+- GET    /api/v1/floors                        -> List floors (optionally filtered by building_id)
+- POST   /api/v1/floors                        -> Create new floor record
+- POST   /api/v1/floors/{id}/blueprint         -> Upload floorplan blueprint image
+
+CAMERAS & CONNECTIONS:
+- GET    /api/v1/cameras                       -> List all camera nodes
+- POST   /api/v1/cameras                       -> Register new camera node
+- GET    /api/v1/cameras/{id}                  -> Get camera details
+- PATCH  /api/v1/cameras/{id}                  -> Update camera coordinates (X, Y), angle, zone
+- DELETE /api/v1/cameras/{id}                  -> Decommission camera node
+- POST   /api/v1/cameras/reorder               -> Update display order of cameras
+- GET    /api/v1/camera-connections            -> List inter-camera transit pathways
+- POST   /api/v1/camera-connections            -> Create inter-camera connection link
+
+VIDEOS & INGESTION:
+- GET    /api/v1/videos                        -> List uploaded video records
+- POST   /api/v1/videos/probe-metadata         -> Probe video duration, fps, resolution, timestamps
+- POST   /api/v1/videos/upload                 -> Upload raw video footage attached to camera node
+- POST   /api/v1/videos/{id}/process-ai        -> Run YOLO + MOT + Face Harvesting pipeline
+- GET    /api/v1/videos/{id}/status            -> Check processing progress and status
+- GET    /api/v1/videos/{id}/stream            -> HTTP byte-range video streaming endpoint
+- GET    /api/v1/videos/{id}/detections        -> List raw detections for video
+
+TRACKING & MOT:
+- GET    /api/v1/tracking/videos/{id}/tracks   -> Get persistent tracks for video
+- GET    /api/v1/tracking/videos/{id}/tracks/{t_id} -> Get full motion trajectory for track
+- GET    /api/v1/tracking/thumbnails/{v_id}/{f} -> Serve best entity crop image
+
+PERSON RE-IDENTIFICATION (Re-ID):
+- POST   /api/v1/reid/match-track/{track_id}   -> Match specific track across all cameras
+- POST   /api/v1/reid/match-subject/{subj_id}  -> Match suspect profile across all cameras
+- POST   /api/v1/reid/match-image              -> Match arbitrary uploaded photo across all cameras
+- GET    /api/v1/reid/identities               -> Cluster global network identities
+
+SPATIAL TRAJECTORIES:
+- GET    /api/v1/trajectories/track/{track_id} -> Reconstruct full spatial path & forensic story
+- GET    /api/v1/trajectories/subject/{id}     -> Reconstruct spatial path for registered subject
+- POST   /api/v1/trajectories/sync-case/{id}   -> Sync trajectory waypoints to Case events
+
+SUBJECTS (SUSPECT VAULT):
+- GET    /api/v1/subjects                      -> List suspect profiles
+- POST   /api/v1/subjects                      -> Create suspect profile with portrait photo
+- GET    /api/v1/subjects/{id}                 -> Get suspect profile
+- DELETE /api/v1/subjects/{id}                 -> Delete suspect profile
+- GET    /api/v1/subjects/{id}/camera-matches  -> Get registered CCTV sightings of suspect
+
+EVIDENCE VAULT:
+- GET    /api/v1/evidence                      -> List digital evidence items
+- GET    /api/v1/evidence/{id}                 -> Get evidence item and chain of custody
+- POST   /api/v1/evidence/{id}/verify          -> Live recalculation of SHA-256 checksum
+
+INVESTIGATIONS & CASES:
+- GET    /api/v1/cases                         -> List investigation cases
+- POST   /api/v1/cases                         -> Create new investigation case
+- GET    /api/v1/cases/{id}                    -> Get case dossier with events and evidence
+- PATCH  /api/v1/cases/{id}                    -> Update case status or priority
+- POST   /api/v1/cases/{id}/events             -> Add manual timeline event
+- POST   /api/v1/cases/{id}/evidence/{ev_id}   -> Link evidence item to case
+
+REPORTS & DASHBOARD:
+- GET    /api/v1/dashboard/stats               -> System metrics, camera status, detection sums
+- GET    /api/v1/reports                       -> List generated forensic reports
+- POST   /api/v1/reports/auto-generate/{case_id}-> Auto-generate executive forensic report
+
+
+====================================================================================================
+10. END-TO-END WORKFLOWS & INVESTIGATIVE SCENARIOS
+====================================================================================================
+
+SCENARIO 1: INGESTING NEW CCTV FOOTAGE
+1. Navigate to CCTV Monitoring (`/cctv`).
+2. Click "Upload Footage".
+3. Select an MP4 video file and pick the target camera (e.g. `CAM 01 - Main Entrance South`).
+4. Enter the recording date and time. Click "Upload & Process".
+5. The backend calculates SHA-256 checksum, saves raw video into `storage/videos/`, samples frames
+   at 5 FPS, runs YOLO detection + ByteTrack MOT, annotates bounding boxes and motion trails,
+   crops entity thumbnails, harvests faces, and outputs an annotated video to `storage/processed/`.
+
+SCENARIO 2: LOCATING A SUSPECT ACROSS MULTIPLE CAMERAS (Re-ID)
+1. Navigate to Suspect Vault (`/subjects`).
+2. Create a new suspect profile (e.g., "John Doe - Case #402") and upload a reference photo.
+3. Click "Search CCTV Sightings".
+4. The system computes the 512-d Re-ID embedding and evaluates cosine similarity against all
+   persistent person tracks across all cameras in the database.
+5. Sighting cards appear showing each camera location, zone, timestamp, and match percentage.
+6. Click "View Spatial Trajectory" to see the suspect's physical journey across the facility map.
+
+SCENARIO 3: CASE BUILDING & EVIDENCE VERIFICATION
+1. Navigate to Investigations (`/investigations`).
+2. Open the active case. Click "Sync Trajectory Waypoints" to convert the suspect's cross-camera
+   journey into formal timestamped timeline events.
+3. Navigate to Evidence Vault (`/evidence`).
+4. Click "Verify Integrity" on the video evidence. The backend re-computes SHA-256 from disk, confirms
+   the hash matches the ingestion fingerprint, and logs a verified audit timestamp.
+5. Navigate to Reports (`/reports`) and click "Auto-Generate Executive Report".
+6. Export or print the completed forensic investigation dossier.
+
+
+====================================================================================================
+11. DEVELOPMENT HISTORY, BUG FIXES & COMPATIBILITY RESOLUTIONS
+====================================================================================================
+
+During development and environment testing, several critical engineering hurdles were solved:
+
+1. PYTHON 3.14 & PASSLIB INCOMPATIBILITY:
+   - Issue: The legacy `passlib` library crashed on modern Python releases during bcrypt initialization
+     due to internal inspection of deprecated crypt symbols.
+   - Resolution: Removed `passlib` dependency and implemented direct `bcrypt` hashing in
+     `backend/app/core/security.py` using `bcrypt.hashpw(password.encode(), bcrypt.gensalt())`
+     and `bcrypt.checkpw()`.
+
+2. BREACHED CREDENTIAL ROTATION:
+   - Issue: Static default credentials were identified as a security risk.
+   - Resolution: Updated seed scripts and frontend login defaults to a high-entropy secret key:
+     Username: `admin` | Password: `S3nt1n3l#Analytics2026!Key`.
+
+3. OPENCV VERSION COMPATIBILITY & HAAR CASCADE PINNING:
+   - Issue: Newer OpenCV releases (5.x preview) altered cascade classifier imports.
+   - Resolution: Standardized on `opencv-python-headless >= 4.8.0` and implemented automated
+     fallback downloading and local caching of `haarcascade_frontalface_default.xml`.
+
+4. FRONTEND AXIOS INTERCEPTOR RELOAD LOOP:
+   - Issue: Failed login attempts returned HTTP 401, causing the global response interceptor
+     to trigger a full page reload loop on the `/login` route.
+   - Resolution: Added route exception checking `!error.config?.url?.includes('/auth/login')`
+     to permit graceful UI error toasts without page refreshes.
+
+5. FAST VIDEO INGESTION & TRACKING PERFORMANCE:
+   - Issue: High-resolution CCTV streams (1080p / 4K) at 30 FPS caused processing bottlenecks.
+   - Resolution: Added intelligent frame sampling (default 5 FPS), PyTorch CPU thread optimization,
+     and ByteTrack tracking persistence with `FallbackMOTTracker` to maintain real-time speed.
+
+
+====================================================================================================
+12. HOW TO RUN, VALIDATE & MAINTAIN THE APPLICATION
+====================================================================================================
+
+PREREQUISITES:
+- Python 3.10+ (Tested on Python 3.13 / 3.14)
+- Node.js 18+ and npm
+
+STARTING THE BACKEND (FastAPI / Uvicorn):
+```powershell
+cd backend
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+```
+- API Base URL: http://127.0.0.1:8000
+- Swagger UI Documentation: http://127.0.0.1:8000/docs
+- Redoc Documentation: http://127.0.0.1:8000/redoc
+- Health Check: http://127.0.0.1:8000/health
+
+STARTING THE FRONTEND (Vite / React):
+```powershell
+cd frontend
+npm run dev
+```
+- Web Application URL: http://localhost:3000/
+- Default Login Username: admin
+- Default Login Password: S3nt1n3l#Analytics2026!Key
+
+STORAGE DIRECTORIES:
+- `backend/sentinel.db`          -> SQLite database file
+- `backend/storage/videos/`      -> Raw uploaded CCTV footage
+- `backend/storage/processed/`   -> AI-annotated video streams with bounding boxes and tracks
+- `backend/storage/face_crops/`  -> Harvested face crops from detections
+- `backend/storage/track_crops/` -> Best entity thumbnail crops for persistent tracks
+
+TESTING & SCRIPTS:
+- `backend/verify_mot.py`             -> Validates YOLO & MOT tracking pipeline
+- `backend/test_reid_trajectory.py`   -> Validates Re-ID embedding extraction and trajectory generation
+- `backend/test_tracking_synthetic.py`-> Runs synthetic frame tests for bounding box accuracy
+
+====================================================================================================
+END OF STUDY GUIDE — SENTINEL AI VIDEO ANALYTICS PLATFORM
+====================================================================================================

@@ -1,0 +1,77 @@
+# ─── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.Python
+env/
+venv/
+.venv/
+ENV/
+pip-selfcheck.json
+*.pth
+
+# ─── Pytest / coverage ────────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ─── AI / ML model weights (large binaries) ───────────────────────────────────
+*.pt
+*.pth
+*.onnx
+*.tflite
+*.pkl
+*.pickle
+*.bin
+
+# ─── Database files ───────────────────────────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+
+# ─── Environment & secrets ────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.secret
+
+# ─── Storage / media (large runtime files) ────────────────────────────────────
+backend/storage/raw_videos/
+backend/storage/processed_videos/
+backend/storage/thumbnails/
+backend/storage/faces/
+backend/storage/crops/
+backend/storage/uploads/
+face_crops/
+storage/
+processed_sample.mp4
+sample_cctv.mp4
+
+# ─── Scratch / test outputs ───────────────────────────────────────────────────
+backend/scratch/test_output/
+*.log
+
+# ─── Node / Frontend ──────────────────────────────────────────────────────────
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+.npm
+
+# ─── OS & editor ──────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ─── Antigravity IDE artifacts ────────────────────────────────────────────────
+.agents/

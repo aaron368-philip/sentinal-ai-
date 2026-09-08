@@ -1,0 +1,10 @@
+# Sentinel AI - Optimized CCTV ByteTrack Configuration
+# Calibrated for surveillance video to prevent ID hijacking and track drift
+
+tracker_type: bytetrack
+track_high_thresh: 0.35 # Stage 1 high-confidence detection matching
+track_low_thresh: 0.12  # Stage 2 recovery threshold for occluded/shadowed frames
+new_track_thresh: 0.40  # Confident threshold required to initialize a brand-new track ID
+track_buffer: 45        # Frames to keep lost tracks alive (45 frames = 15s at 3 FPS, 9s at 5 FPS)
+match_thresh: 0.80      # Standard distance threshold (1 - IoU <= 0.80 => IoU >= 0.20)
+fuse_score: true        # Fuse detection confidence with Kalman spatial estimate
